@@ -17,12 +17,15 @@
         push %3
 %endmacro
 
-%define WIDTH 150
+%define WIDTH 155
 %define HEIGHT 40
 %define LENGTH 255
 
+%define scale 10
+
 section .data
-        row TIMES WIDTH db 0x2E
+        ; row TIMES WIDTH db 0x2E
+        row TIMES WIDTH db 0x20
         newline db 0x0A
         carriage db 0x0D
         red db `\033[31m`, 0
@@ -46,7 +49,7 @@ section .data
         ; ESC[2J - clear screen
         backspace db 0x08
 
-        delay dq 1, 0
+        delay dq 0, 50000000
 
 
 section .text
@@ -56,36 +59,101 @@ _start:
         call go_home
         call make_red
         call fill_background
-        call ansi_reset
+        ; call ansi_reset
         
+        ; r8 - x , r9 - y
+        mov r8, 0
+        mov r9, 0
+
+        ; r10 - x dir , r12 - y dir
+        mov r10, 1
+        mov r12, 1
         
         wait_start:
                 mov rax, 35
                 mov rdi, delay
                 xor rsi, rsi
                 syscall
+
+                cmp r10, 1
+                je x_1
+                jmp x_0
+                x_1:
+                        inc r8
+                        cmp r8, WIDTH-scale-1
+                        jge x_set_0
+                        jmp x_over
+                x_0:
+                        dec r8
+                        cmp r8, 0
+                        jle x_set_1
+                        jmp x_over
+                x_set_0:
+                        mov r10, 0
+                        jmp x_over
+                x_set_1:
+                        mov r10, 1
+                        jmp x_over
+                x_over:
+
+                cmp r12, 1
+                je y_1
+                jmp y_0
+                y_1:
+                        inc r9
+                        cmp r9, HEIGHT-scale-1
+                        jge y_set_0
+                        jmp y_over
+                y_0:
+                        dec r9
+                        cmp r9, 0
+                        jle y_set_1
+                        jmp y_over
+                y_set_0:
+                        mov r12, 0
+                        jmp y_over
+                y_set_1:
+                        mov r12, 1
+                        jmp y_over
+                y_over:
+
                 jmp draw_points
+                
         
 
         draw_points:
+                call go_home
+                call make_red
+                call fill_background
+                ; call ansi_reset
+
                 ; Z, Y, X
-                push3 1, 10, 10
+                push3 1, r9, r8
                 call draw_point
                 sub rsp, 8*3
 
-                push3 1, 10, 0
+                mov rax, r9
+                add rax, scale
+                push3 1, rax, r8
                 call draw_point
                 sub rsp, 8*3
 
-                push3 1, 0, 10
+                mov rax, r8
+                add rax, scale
+                push3 1, r9, rax
                 call draw_point
                 sub rsp, 8*3
 
-                push3 1, 0, 0
+                mov rax, r8
+                add rax, scale
+                mov rdi, r9
+                add rdi, scale
+                push3 1, rdi, rax
                 call draw_point
                 sub rsp, 8*3
 
                 jmp wait_start
+        
         
 
 fill_background:
