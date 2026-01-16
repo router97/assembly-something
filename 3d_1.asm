@@ -10,7 +10,6 @@
         mov rax, SYS_EXIT
         syscall
 %endmacro
-%define scale 2
 %macro push3 3
         push %1
         push %2
@@ -22,6 +21,21 @@
 %define LENGTH 255
 
 %define scale 10
+
+struc point
+        .x: resd 1
+        .y: resd 1
+        .z: resd 1
+        .color: resd 1
+endstruc
+
+struc plane
+        .p1: resb point_size
+        .p2: resb point_size
+        .p3: resb point_size
+        .p4: resb point_size
+endstruc
+
 
 section .data
         ; row TIMES WIDTH db 0x2E
@@ -35,7 +49,7 @@ section .data
         home db `\033[H`,0
         home_len EQU $-home
 
-        point db 0x40
+        pointchar db 0x40
 
         one_line_up db `\033[1A`, 0
         one_line_up_len EQU $-one_line_up
@@ -51,11 +65,40 @@ section .data
 
         delay dq 0, 50000000
 
+        point1 dd 0.0, 0.0, 0.0, 0
+        point2 dd 10.0, 10.0, 0.0, 0
+        point3 dd 10.0, 0.0, 0.0, 0
+        point4 dd 0.0, 10.0, 0.0, 0
+
+section .bss
+        plane1 resb plane_size
+
 
 section .text
 global _start
 
 _start:
+        mov rax, [point1]
+        mov [plane1 + plane.p1], rax
+        mov rax, [point1+8]
+        mov[plane1 + plane.p1 + 8], rax
+
+        mov rax, [point2]
+        mov [plane1 + plane.p2], rax
+        mov rax, [point2+8]
+        mov[plane1 + plane.p2 + 8], rax
+
+        mov rax, [point3]
+        mov [plane1 + plane.p3], rax
+        mov rax, [point3+8]
+        mov[plane1 + plane.p3 + 8], rax
+
+        mov rax, [point4]
+        mov [plane1 + plane.p4], rax
+        mov rax, [point4+8]
+        mov[plane1 + plane.p4 + 8], rax
+        
+
         call go_home
         call make_red
         call fill_background
@@ -75,47 +118,47 @@ _start:
                 xor rsi, rsi
                 syscall
 
-                cmp r10, 1
-                je x_1
-                jmp x_0
-                x_1:
-                        inc r8
-                        cmp r8, WIDTH-scale-1
-                        jge x_set_0
-                        jmp x_over
-                x_0:
-                        dec r8
-                        cmp r8, 0
-                        jle x_set_1
-                        jmp x_over
-                x_set_0:
-                        mov r10, 0
-                        jmp x_over
-                x_set_1:
-                        mov r10, 1
-                        jmp x_over
-                x_over:
+                ; cmp r10, 1
+                ; je x_1
+                ; jmp x_0
+                ; x_1:
+                ;         inc r8
+                ;         cmp r8, WIDTH-scale-1
+                ;         jge x_set_0
+                ;         jmp x_over
+                ; x_0:
+                ;         dec r8
+                ;         cmp r8, 0
+                ;         jle x_set_1
+                ;         jmp x_over
+                ; x_set_0:
+                ;         mov r10, 0
+                ;         jmp x_over
+                ; x_set_1:
+                ;         mov r10, 1
+                ;         jmp x_over
+                ; x_over:
 
-                cmp r12, 1
-                je y_1
-                jmp y_0
-                y_1:
-                        inc r9
-                        cmp r9, HEIGHT-scale-1
-                        jge y_set_0
-                        jmp y_over
-                y_0:
-                        dec r9
-                        cmp r9, 0
-                        jle y_set_1
-                        jmp y_over
-                y_set_0:
-                        mov r12, 0
-                        jmp y_over
-                y_set_1:
-                        mov r12, 1
-                        jmp y_over
-                y_over:
+                ; cmp r12, 1
+                ; je y_1
+                ; jmp y_0
+                ; y_1:
+                ;         inc r9
+                ;         cmp r9, HEIGHT-scale-1
+                ;         jge y_set_0
+                ;         jmp y_over
+                ; y_0:
+                ;         dec r9
+                ;         cmp r9, 0
+                ;         jle y_set_1
+                ;         jmp y_over
+                ; y_set_0:
+                ;         mov r12, 0
+                ;         jmp y_over
+                ; y_set_1:
+                ;         mov r12, 1
+                ;         jmp y_over
+                ; y_over:
 
                 jmp draw_points
                 
@@ -128,29 +171,54 @@ _start:
                 ; call ansi_reset
 
                 ; Z, Y, X
-                push3 1, r9, r8
+                movss xmm0, dword [plane1 + plane.p1 + point.x]
+                movss xmm1, dword [plane1 + plane.p1 + point.y]
+                movss xmm2, dword [plane1 + plane.p1 + point.z]
+                sub rsp, 8
+                movss dword [rsp], xmm2
+                sub rsp, 8
+                movss dword [rsp], xmm1
+                sub rsp, 8
+                movss dword [rsp], xmm0
+                
                 call draw_point
-                sub rsp, 8*3
+                add rsp, 8*3
 
-                mov rax, r9
-                add rax, scale
-                push3 1, rax, r8
+                movss xmm0, dword [plane1 + plane.p2 + point.x]
+                movss xmm1, dword [plane1 + plane.p2 + point.y]
+                movss xmm2, dword [plane1 + plane.p2 + point.z]
+                sub rsp, 8
+                movss dword [rsp], xmm2
+                sub rsp, 8
+                movss dword [rsp], xmm1
+                sub rsp, 8
+                movss dword [rsp], xmm0
                 call draw_point
-                sub rsp, 8*3
+                add rsp, 8*3
 
-                mov rax, r8
-                add rax, scale
-                push3 1, r9, rax
+                movss xmm0, dword [plane1 + plane.p3 + point.x]
+                movss xmm1, dword [plane1 + plane.p3 + point.y]
+                movss xmm2, dword [plane1 + plane.p3 + point.z]
+                sub rsp, 8
+                movss dword [rsp], xmm2
+                sub rsp, 8
+                movss dword [rsp], xmm1
+                sub rsp, 8
+                movss dword [rsp], xmm0
                 call draw_point
-                sub rsp, 8*3
+                add rsp, 8*3
 
-                mov rax, r8
-                add rax, scale
-                mov rdi, r9
-                add rdi, scale
-                push3 1, rdi, rax
+                movss xmm0, dword [plane1 + plane.p4 + point.x]
+                movss xmm1, dword [plane1 + plane.p4 + point.y]
+                movss xmm2, dword [plane1 + plane.p4 + point.z]
+                sub rsp, 8
+                movss dword [rsp], xmm2
+                sub rsp, 8
+                movss dword [rsp], xmm1
+                sub rsp, 8
+                movss dword [rsp], xmm0
                 call draw_point
-                sub rsp, 8*3
+                add rsp, 8*3
 
                 jmp wait_start
         
@@ -249,11 +317,17 @@ move_cursor:
 draw_point:
         push rbp
         mov rbp, rsp
+        mov rax, 0
 
-        mov r14, [x]
-        push r14
-        mov r14, [y]
-        push r14
+        movss xmm0, dword [x]
+        cvtss2si eax, xmm0
+        push rax
+
+        movss xmm0, dword [y]
+        cvtss2si eax, xmm0
+        shr eax, 1
+        push rax
+
         call move_cursor
         add rsp, 16
         
@@ -265,7 +339,7 @@ draw_point:
 
         mov rax, SYS_WRITE
         mov rdi, STDOUT
-        mov rsi, point
+        mov rsi, pointchar
         mov rdx, 1
         syscall
 
