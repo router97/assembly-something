@@ -42,14 +42,14 @@ section .data
         row TIMES WIDTH db 0x20
         newline db 0x0A
         carriage db 0x0D
-        red db `\033[31m`, 0
+        red db `\033[41m`, 0
         red_len EQU $-red
         reset db `\033[0m`, 0
         reset_len EQU $-reset
         home db `\033[H`,0
         home_len EQU $-home
 
-        pointchar db 0x40
+        pointchar db 0x20
 
         one_line_up db `\033[1A`, 0
         one_line_up_len EQU $-one_line_up
@@ -106,9 +106,6 @@ _start:
         
 
         call go_home
-        call make_red
-        call fill_background
-        ; call ansi_reset
         
 
         ; r10 - x dir , r12 - y dir
@@ -209,9 +206,8 @@ _start:
 
         draw_points:
                 call go_home
-                call make_red
                 call fill_background
-                ; call ansi_reset
+                call make_red
 
                 ; Z, Y, X
                 movss xmm0, dword [plane1 + plane.p1 + point.x]
@@ -263,6 +259,7 @@ _start:
                 call draw_point
                 add rsp, 8*3
 
+                call ansi_reset
                 jmp wait_start
         
         
