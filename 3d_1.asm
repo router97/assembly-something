@@ -105,7 +105,7 @@ section .data
         point4 dd 0.5, 1.0, 2.0, 0
 
         plane1_z_high dd 2.99
-        plane1_z_low dd 1.99
+        plane1_z_low dd 1.1
 
         point5 dd -0.5, -1.0, 3.0, 0
         point6 dd -0.5, 1.0, 3.0, 0
@@ -344,8 +344,21 @@ _start:
                 ;         push rax
                 ;         call move_plane_up
                 ;         add rsp, 8
+                ;         mov rax, plane2
+                ;         push rax
+                ;         call move_plane_up
+                ;         add rsp, 8
 
                 ;         mov rax, plane1
+                ;         push rax
+                ;         call plane_touching_wall_y
+                ;         add rsp, 8
+                        
+                ;         cmp rax, 1
+
+                ;         je y_set_0
+
+                ;         mov rax, plane2
                 ;         push rax
                 ;         call plane_touching_wall_y
                 ;         add rsp, 8
@@ -360,7 +373,21 @@ _start:
                 ;         call move_plane_down
                 ;         add rsp, 8
 
+                ;         mov rax, plane2
+                ;         push rax
+                ;         call move_plane_down
+                ;         add rsp, 8
+
                 ;         mov rax, plane1
+                ;         push rax
+                ;         call plane_touching_wall_y
+                ;         add rsp, 8
+
+                ;         cmp rax, 1
+                        
+                ;         je y_set_1
+
+                ;         mov rax, plane2
                 ;         push rax
                 ;         call plane_touching_wall_y
                 ;         add rsp, 8
