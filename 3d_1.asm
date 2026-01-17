@@ -1025,6 +1025,7 @@ draw_plane:
 
 %define _dx xmm5
 %define _dy xmm6
+%define _dz xmm13
 
 %define slope xmm7
 
@@ -1049,13 +1050,12 @@ draw_line:
 
         movss _dx, p2_x
         subss _dx, p1_x
-        ; mulss _dx, _dx
-        ; sqrtss _dx, _dx
 
         movss _dy, p2_y
         subss _dy, p1_y
-        ; mulss _dy, _dy
-        ; sqrtss _dy, _dy
+
+        movss _dz, p2_z
+        subss _dz, p1_z
 
         movss slope, _dy
         divss slope, _dx
@@ -1069,7 +1069,6 @@ draw_line:
                 ucomiss temp, [deviation]
                 jb .vertical
 
-                ; ucomiss slope, [float_zero]
                 ucomiss p2_x, p1_x
                 jae .loop_right
                 jbe .loop_left
