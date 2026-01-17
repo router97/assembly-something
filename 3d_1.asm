@@ -1405,6 +1405,7 @@ draw_box:
                 ret
 %undef arg1
 
+
 %define ang_arg rbp + 16
 %define _po rbp + 24
 %define _p rbp + 32
@@ -1493,6 +1494,29 @@ rotate_point:
 
         pop rbp
         ret
+%undef ang_arg
+%undef _po
+%undef _p
+
+%undef resx
+%undef resy
+%undef resz
+
+%undef p_x
+%undef p_y
+%undef p_z
+
+%undef po_x
+%undef po_y
+%undef po_z
+
+%undef temp
+%undef temp2
+%undef temp3
+%undef sine
+%undef cosine
+%undef angle
+
 
 %define box_addr rbp + 24
 %define po rbp + 16
