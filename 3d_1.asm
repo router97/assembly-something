@@ -145,18 +145,20 @@ section .data
 
         ; ----<
 
-        point1 dd -0.5, -1.0, 1.0, 0
-        point2 dd -0.5, 1.0, 1.0, 0
-        point3 dd 0.5, -1.0, 1.0, 0
-        point4 dd 0.5, 1.0, 1.0, 0
+        point1 dd -0.5, -1.0, 3.0, 0
+        point2 dd -0.5, 1.0, 3.0, 0
+        point3 dd 0.5, -1.0, 3.0, 0
+        point4 dd 0.5, 1.0, 3.0, 0
 
         plane1_z_high dd 4.0
         plane1_z_low dd 0.001
 
-        point5 dd -0.5, -1.0, 2.0, 0
-        point6 dd -0.5, 1.0, 2.0, 0
-        point7 dd 0.5, -1.0, 2.0, 0
-        point8 dd 0.5, 1.0, 2.0, 0
+        point5 dd -0.5, -1.0, 4.0, 0
+        point6 dd -0.5, 1.0, 4.0, 0
+        point7 dd 0.5, -1.0, 4.0, 0
+        point8 dd 0.5, 1.0, 4.0, 0
+
+        point_center dd 4.0, 0.0, 3.5, 0
 
         ; ==== ^^^^^^^^^^ ==== ;
 
@@ -186,11 +188,12 @@ section .data
         ; ==== ANIMATION PARAMS ==== ;
         step dd 0.005
         smallstep dd 0.05
+        rotate_step dd 0.1
 
         max_x dd 1.0
         min_x dd -1.0
 
-        delay dq 0, 5000000
+        delay dq 0, 50000000
 
         ; ---- ---- ASCII <
         pointchar db 0x30
@@ -269,129 +272,133 @@ _start:
                 xor rsi, rsi
                 syscall
 
-                
-                cmp r10, 1
-                je .z_1
-                jmp .z_0
-                .z_1:
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call move_plane_forward
-                        add rsp, 8
+                ; mov rax, point_center
+                ; movss xmm0, [rax + point.x]
+                ; movss xmm1, [float_p_five]
+                ; addss xmm0, xmm1
+                ; movss [rax + point.x], xmm0
+                ; cmp r10, 1
+                ; je .z_1
+                ; jmp .z_0
+                ; .z_1:
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call move_plane_forward
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call move_plane_forward
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call move_plane_forward
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call plane1_z_limit_check
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call plane1_z_limit_check
+                ;         add rsp, 8
 
-                        cmp rax, 1
+                ;         cmp rax, 1
                         
-                        je .z_set_0
+                ;         je .z_set_0
                         
-                        jmp .z_over
-                .z_0:
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call move_plane_back
-                        add rsp, 8
+                ;         jmp .z_over
+                ; .z_0:
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call move_plane_back
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call move_plane_back
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call move_plane_back
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call plane1_z_limit_check
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call plane1_z_limit_check
+                ;         add rsp, 8
 
-                        cmp rax, 1
+                ;         cmp rax, 1
                         
-                        je .z_set_1
+                ;         je .z_set_1
                         
-                        jmp .z_over
-                .z_set_0:
-                        mov r10, 0
-                        jmp .z_over
-                .z_set_1:
-                        mov r10, 1
-                        jmp .z_over
-                .z_over:
+                ;         jmp .z_over
+                ; .z_set_0:
+                ;         mov r10, 0
+                ;         jmp .z_over
+                ; .z_set_1:
+                ;         mov r10, 1
+                ;         jmp .z_over
+                ; .z_over:
 
 
-                cmp r12, 1
-                je .x_1
-                jmp .x_0
-                .x_1:
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call move_plane_right
-                        add rsp, 8
+                ; cmp r12, 1
+                ; je .x_1
+                ; jmp .x_0
+                ; .x_1:
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call move_plane_right
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call move_plane_right
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call move_plane_right
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call plane_touching_wall_x
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call plane_touching_wall_x
+                ;         add rsp, 8
                         
-                        cmp rax, 1
+                ;         cmp rax, 1
 
-                        je .x_set_0
-                        jmp .x_over
-                .x_0:
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call move_plane_left
-                        add rsp, 8
+                ;         je .x_set_0
+                ;         jmp .x_over
+                ; .x_0:
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call move_plane_left
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call move_plane_left
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call move_plane_left
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call plane_touching_wall_x
-                        add rsp, 8
-                        cmp rax, 1
-                        je .x_set_1
-                        jmp .x_over
-                .x_set_0:
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call move_plane_left
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call plane_touching_wall_x
+                ;         add rsp, 8
+                ;         cmp rax, 1
+                ;         je .x_set_1
+                ;         jmp .x_over
+                ; .x_set_0:
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call move_plane_left
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call move_plane_left
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call move_plane_left
+                ;         add rsp, 8
 
-                        mov r12, 0
-                        jmp .x_over
-                .x_set_1:
-                        lea rax, [box1 + box.pl1]
-                        push rax
-                        call move_plane_right
-                        add rsp, 8
+                ;         mov r12, 0
+                ;         jmp .x_over
+                ; .x_set_1:
+                ;         lea rax, [box1 + box.pl1]
+                ;         push rax
+                ;         call move_plane_right
+                ;         add rsp, 8
 
-                        lea rax, [box1 + box.pl2]
-                        push rax
-                        call move_plane_right
-                        add rsp, 8
+                ;         lea rax, [box1 + box.pl2]
+                ;         push rax
+                ;         call move_plane_right
+                ;         add rsp, 8
 
-                        mov r12, 1
-                        jmp .x_over
-                .x_over:
+                ;         mov r12, 1
+                ;         jmp .x_over
+                ; .x_over:
                 
                 jmp .draw
                 
@@ -406,6 +413,26 @@ _start:
                 push rax
                 call draw_box
                 add rsp, 8
+
+                push box1
+                push point_center
+                call rotate_box
+                add rsp, 16
+
+                movss xmm0, dword [point_center + point.x]
+                movss xmm1, dword [point_center + point.y]
+                movss xmm2, dword [point_center + point.z]
+                sub rsp, 8
+                mov [rsp], 0
+                movss dword [rsp], xmm2
+                sub rsp, 8
+                mov [rsp], 0
+                movss dword [rsp], xmm1
+                sub rsp, 8
+                mov [rsp], 0
+                movss dword [rsp], xmm0
+                call draw_point
+                add rsp, 8*3
 
                 jmp .wait_start
         
@@ -630,28 +657,28 @@ draw_point:
         jb .ten
         jmp .end
 
-        .p5     
+        .p5:
                 call make_white
                 jmp .over
-        .one   
+        .one:
                 call make_cyan
                 jmp .over
-        .onep5   
+        .onep5:
                 call make_magenta
                 jmp .over
-        .two  
+        .two:
                 call make_blue
                 jmp .over
-        .three
+        .three:
                 call make_yellow
                 jmp .over
-        .four
+        .four:
                 call make_green
                 jmp .over
-        .five
+        .five:
                 call make_red
                 jmp .over
-        .ten
+        .ten:
                 call make_black
                 jmp .over
         .over:
@@ -1377,3 +1404,193 @@ draw_box:
                 pop rbp
                 ret
 %undef arg1
+
+%define ang_arg rbp + 16
+%define _po rbp + 24
+%define _p rbp + 32
+
+%define resx xmm5
+%define resy xmm6
+%define resz xmm7
+
+%define p_x xmm1
+%define p_y xmm2
+%define p_z xmm11
+
+%define po_x xmm3
+%define po_y xmm4
+%define po_z xmm12
+
+%define temp xmm8
+%define temp2 xmm9
+%define temp3 xmm13
+%define sine xmm14
+%define cosine xmm15
+%define angle xmm10
+rotate_point:
+        push rbp
+        mov rbp, rsp
+
+        mov rax, [_p]
+        movss p_x, [rax + point.x]
+        movss p_y, [rax + point.y]
+        movss p_z, [rax + point.z]
+
+        mov rax, [_po]
+        movss po_x, [rax + point.x]
+        movss po_y, [rax + point.y]
+        movss po_z, [rax + point.z]
+
+        movss angle, [ang_arg]
+
+        sub rsp, 8
+        movss [rsp], angle
+        fld dword [rsp]
+        fsin
+        fstp dword [rsp]
+        movss sine, [rsp]
+
+        movss [rsp], angle
+        fld dword [rsp]
+        fcos
+        fstp dword [rsp]
+        movss cosine, [rsp]
+        add rsp, 8
+
+        subss p_x, po_x
+        subss p_y, po_y
+
+        movss temp, cosine
+        movss temp3, p_x
+        mulss temp, temp3
+
+        movss temp2, sine
+        movss temp3, p_y
+        mulss temp2, temp3
+
+        movss resx, temp
+        subss resx, temp2
+
+        movss temp, cosine
+        movss temp3, p_y
+        mulss temp, temp3
+
+        movss temp2, sine
+        movss temp3, p_x
+        mulss temp2, temp3
+
+        movss resy, temp
+        addss resy, temp2
+        movss resz, p_z
+
+        addss resy, po_y
+        addss resx, po_x
+
+        mov rax, [_p]
+        movss [rax + point.x], resx
+        movss [rax + point.y], resy
+        movss [rax + point.z], resz
+
+        pop rbp
+        ret
+
+%define box_addr rbp + 24
+%define po rbp + 16
+rotate_box:
+        push rbp
+        mov rbp, rsp
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p1]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p2]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p3]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p4]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p1]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p2]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p3]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p4]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        pop rbp
+        ret
+%undef box_addr
+%undef po
