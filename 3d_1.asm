@@ -161,11 +161,18 @@ section .data
         ; ==== ^^^^^^^^^^ ==== ;
 
         ; ==== FLOAT CONSTANTS ==== ;
-        two_float dd 2.0
+        float_ten dd 10.0
+        float_five dd 5.0
+        float_four dd 4.0
+        float_three dd 3.0
+        float_two_p_five dd 2.5
+        float_two dd 2.0
+        float_one_p_five dd 1.5
         float_one dd 1.0
+        float_p_five dd 0.5
         float_zero dd 0.0
         float_minus_one dd -1.0
-        minus_two_float dd -2.0
+        float_minus_two dd -2.0
 
         float_height dd 40.0
         float_height_m1 dd 39.0
@@ -565,7 +572,7 @@ draw_point:
         movss xmm0, dword [x]
         divss xmm0, [z]
         addss xmm0, [float_one]
-        divss xmm0, [two_float]
+        divss xmm0, [float_two]
         mulss xmm0, [float_width]
         cvtss2si eax, xmm0
         cmp eax, 0
@@ -577,7 +584,7 @@ draw_point:
         movss xmm0, dword [y]
         divss xmm0, [z]
         addss xmm0, [float_one]
-        divss xmm0, [two_float]
+        divss xmm0, [float_two]
         mulss xmm0, [float_height]
         cvtss2si eax, xmm0
         cmp eax, 0
@@ -602,13 +609,61 @@ draw_point:
         mov rdx, 1
         syscall
 
-        mov rax, SYS_WRITE
-        mov rdi, STDOUT
-        mov rsi, pointchar
-        mov rdx, 1
-        syscall
+        movss xmm0, dword [z]
+        ucomiss xmm0, [float_p_five]
+        jb .p5
+        ucomiss xmm0, [float_one]
+        jb .one
+        ucomiss xmm0, [float_one_p_five]
+        jb .onep5
+        ucomiss xmm0, [float_two]
+        jb .two
+        ucomiss xmm0, [float_two_p_five]
+        jb .two
+        ucomiss xmm0, [float_three]
+        jb .three
+        ucomiss xmm0, [float_four]
+        jb .four
+        ucomiss xmm0, [float_five]
+        jb .five
+        ucomiss xmm0, [float_ten]
+        jb .ten
+        jmp .end
 
+        .p5     
+                call make_white
+                jmp .over
+        .one   
+                call make_cyan
+                jmp .over
+        .onep5   
+                call make_magenta
+                jmp .over
+        .two  
+                call make_blue
+                jmp .over
+        .three
+                call make_yellow
+                jmp .over
+        .four
+                call make_green
+                jmp .over
+        .five
+                call make_red
+                jmp .over
+        .ten
+                call make_black
+                jmp .over
+        .over:
+                mov rax, SYS_WRITE
+                mov rdi, STDOUT
+                mov rsi, pointchar
+                mov rdx, 1
+                syscall
+
+        
         .end:
+                call ansi_reset
                 pop rbp
                 ret
 %undef z
@@ -868,8 +923,8 @@ plane_touching_wall_x:
 plane_touching_wall_y:
         push rbp
         mov rbp, rsp
-        movss xmm1, [minus_two_float]
-        movss xmm2, [two_float]
+        movss xmm1, [float_minus_two]
+        movss xmm2, [float_two]
 
         mov rax, [arg1]
         movss xmm0, [rax + plane.p1 + point.y]
