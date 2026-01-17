@@ -99,18 +99,18 @@ section .data
 
         ; =====<
 
-        point1 dd -0.5, -1.0, 2.0, 0
-        point2 dd -0.5, 1.0, 2.0, 0
-        point3 dd 0.5, -1.0, 2.0, 0
-        point4 dd 0.5, 1.0, 2.0, 0
+        point1 dd -0.5, -1.0, 1.0, 0
+        point2 dd -0.5, 1.0, 1.0, 0
+        point3 dd 0.5, -1.0, 1.0, 0
+        point4 dd 0.5, 1.0, 1.0, 0
 
-        plane1_z_high dd 2.99
-        plane1_z_low dd 1.1
+        plane1_z_high dd 4.0
+        plane1_z_low dd 0.001
 
-        point5 dd -0.5, -1.0, 3.0, 0
-        point6 dd -0.5, 1.0, 3.0, 0
-        point7 dd 0.5, -1.0, 3.0, 0
-        point8 dd 0.5, 1.0, 3.0, 0
+        point5 dd -0.5, -1.0, 2.0, 0
+        point6 dd -0.5, 1.0, 2.0, 0
+        point7 dd 0.5, -1.0, 2.0, 0
+        point8 dd 0.5, 1.0, 2.0, 0
 
         ; --------------------------
 
@@ -186,6 +186,9 @@ _start:
         call go_home
         
 
+
+        
+
         ; r10 - z dir
         mov r10, 1
         mov r12, 1
@@ -198,143 +201,143 @@ _start:
 
                 
 
-                ; cmp r10, 1
-                ; je z_1
-                ; jmp z_0
-                ; z_1:
+                cmp r10, 1
+                je z_1
+                jmp z_0
+                z_1:
+                        mov rax, plane1
+                        push rax
+                        call move_plane_forward
+                        add rsp, 8
+
+                        mov rax, plane2
+                        push rax
+                        call move_plane_forward
+                        add rsp, 8
+
+                        mov rax, plane1
+                        push rax
+                        call plane1_z_limit_check
+                        add rsp, 8
+
+                        cmp rax, 1
+                        
+                        je z_set_0
+                        
+
+                        ; mov rax, plane2
+                        ; push rax
+                        ; call plane1_z_limit_check
+                        ; add rsp, 8
+                        
+                        ; cmp rax, 1
+
+                        ; je z_set_0
+                        jmp z_over
+                z_0:
+                        mov rax, plane1
+                        push rax
+                        call move_plane_back
+                        add rsp, 8
+
+                        mov rax, plane2
+                        push rax
+                        call move_plane_back
+                        add rsp, 8
+
+                        mov rax, plane1
+                        push rax
+                        call plane1_z_limit_check
+                        add rsp, 8
+
+                        cmp rax, 1
+                        
+                        je z_set_1
+                        
+
+                        ; mov rax, plane2
+                        ; push rax
+                        ; call plane1_z_limit_check
+                        ; add rsp, 8
+
+                        ; cmp rax, 1
+                        
+                        ; je z_set_1
+                        jmp z_over
+                z_set_0:
+                        mov r10, 0
+                        jmp z_over
+                z_set_1:
+                        mov r10, 1
+                        jmp z_over
+                z_over:
+
+
+                ; cmp r12, 1
+                ; je x_1
+                ; jmp x_0
+                ; x_1:
                 ;         mov rax, plane1
                 ;         push rax
-                ;         call move_plane_forward
+                ;         call move_plane_right
                 ;         add rsp, 8
 
                 ;         mov rax, plane2
                 ;         push rax
-                ;         call move_plane_forward
+                ;         call move_plane_right
                 ;         add rsp, 8
 
                 ;         mov rax, plane1
                 ;         push rax
-                ;         call plane1_z_limit_check
+                ;         call plane_touching_wall_x
                 ;         add rsp, 8
-
+                        
                 ;         cmp rax, 1
-                        
-                ;         je z_set_0
-                        
 
-                ;         ; mov rax, plane2
-                ;         ; push rax
-                ;         ; call plane1_z_limit_check
-                ;         ; add rsp, 8
-                        
-                ;         ; cmp rax, 1
+                ;         je x_set_0
 
-                ;         ; je z_set_0
-                ;         jmp z_over
-                ; z_0:
+                ;         mov rax, plane2
+                ;         push rax
+                ;         call plane_touching_wall_x
+                ;         add rsp, 8
+                        
+                ;         cmp rax, 1
+
+                ;         je x_set_0
+                ;         jmp x_over
+                ; x_0:
                 ;         mov rax, plane1
                 ;         push rax
-                ;         call move_plane_back
+                ;         call move_plane_left
                 ;         add rsp, 8
 
                 ;         mov rax, plane2
                 ;         push rax
-                ;         call move_plane_back
+                ;         call move_plane_left
                 ;         add rsp, 8
 
                 ;         mov rax, plane1
                 ;         push rax
-                ;         call plane1_z_limit_check
+                ;         call plane_touching_wall_x
                 ;         add rsp, 8
 
                 ;         cmp rax, 1
                         
-                ;         je z_set_1
-                        
+                ;         je x_set_1
 
-                ;         ; mov rax, plane2
-                ;         ; push rax
-                ;         ; call plane1_z_limit_check
-                ;         ; add rsp, 8
-
-                ;         ; cmp rax, 1
-                        
-                ;         ; je z_set_1
-                ;         jmp z_over
-                ; z_set_0:
-                ;         mov r10, 0
-                ;         jmp z_over
-                ; z_set_1:
-                ;         mov r10, 1
-                ;         jmp z_over
-                ; z_over:
-
-
-                cmp r12, 1
-                je x_1
-                jmp x_0
-                x_1:
-                        mov rax, plane1
-                        push rax
-                        call move_plane_right
-                        add rsp, 8
-
-                        mov rax, plane2
-                        push rax
-                        call move_plane_right
-                        add rsp, 8
-
-                        mov rax, plane1
-                        push rax
-                        call plane_touching_wall_x
-                        add rsp, 8
-                        
-                        cmp rax, 1
-
-                        je x_set_0
-
-                        mov rax, plane2
-                        push rax
-                        call plane_touching_wall_x
-                        add rsp, 8
-                        
-                        cmp rax, 1
-
-                        je x_set_0
-                        jmp x_over
-                x_0:
-                        mov rax, plane1
-                        push rax
-                        call move_plane_left
-                        add rsp, 8
-
-                        mov rax, plane2
-                        push rax
-                        call move_plane_left
-                        add rsp, 8
-
-                        mov rax, plane1
-                        push rax
-                        call plane_touching_wall_x
-                        add rsp, 8
-
-                        cmp rax, 1
-                        
-                        je x_set_1
-
-                        mov rax, plane2
-                        push rax
-                        call plane_touching_wall_x
-                        add rsp, 8
-                        je x_set_1
-                        jmp x_over
-                x_set_0:
-                        mov r12, 0
-                        jmp x_over
-                x_set_1:
-                        mov r12, 1
-                        jmp x_over
-                x_over:
+                ;         mov rax, plane2
+                ;         push rax
+                ;         call plane_touching_wall_x
+                ;         add rsp, 8
+                ;         je x_set_1
+                ;         jmp x_over
+                ; x_set_0:
+                ;         mov r12, 0
+                ;         jmp x_over
+                ; x_set_1:
+                ;         mov r12, 1
+                ;         jmp x_over
+                ; x_over:
 
                 ; cmp r12, 1
                 ; je y_1
@@ -568,6 +571,10 @@ draw_point:
         divss xmm0, [two_float]
         mulss xmm0, [float_width]
         cvtss2si eax, xmm0
+        cmp eax, 0
+        jl .end
+        cmp eax, WIDTH
+        jg .end
         push rax
 
         movss xmm0, dword [y]
@@ -576,10 +583,21 @@ draw_point:
         divss xmm0, [two_float]
         mulss xmm0, [float_height]
         cvtss2si eax, xmm0
+        cmp eax, 0
+        jl .skip1
+        cmp eax, HEIGHT
+        jge .skip1
         push rax
 
         call move_cursor
         add rsp, 16
+
+        jmp .skipover
+        .skip1:
+                add rsp, 8
+                jmp .end
+        .skipover:
+                
         
         mov rax, SYS_WRITE
         mov rdi, STDOUT
@@ -593,8 +611,9 @@ draw_point:
         mov rdx, 1
         syscall
 
-        pop rbp
-        ret
+        .end:
+                pop rbp
+                ret
 
 
 %undef z
