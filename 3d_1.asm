@@ -1,5 +1,6 @@
 %define SYS_READ 0
 %define SYS_WRITE 1
+%define NANOSLEEP 35
 %define SYS_EXIT 60
 
 %define STDIN 0
@@ -8,17 +9,13 @@
 
 %macro MACRO_EXIT 0
         mov rax, SYS_EXIT
+        mov rdi, 0
         syscall
-%endmacro
-%macro push3 3
-        push %1
-        push %2
-        push %3
 %endmacro
 
 %define WIDTH 155
 %define HEIGHT 40
-%define LENGTH 255
+%define LENGTH 30
 
 %define scale 10
 
@@ -43,37 +40,81 @@ endstruc
 
 
 section .data
-        ; row TIMES WIDTH db 0x2E
-        row TIMES WIDTH db 0x20
+        ; ==== ASCII ==== ;
         newline db 0x0A
         carriage db 0x0D
-        red db `\033[41m`, 0
+        backspace db 0x08
+        ; ==== ^^^^^ ==== ;
+
+        ; ==== COLORS ==== ;
+        black db `\033[30m`, 0
+        black_len EQU $-black
+        black_bg db `\033[40m`, 0
+        black_bg_len EQU $-black_bg
+
+        red db `\033[31m`, 0
         red_len EQU $-red
-        blue db `\033[44m`, 0
+        red_bg db `\033[41m`, 0
+        red_bg_len EQU $-red_bg
+
+        green db `\033[32m`, 0
+        green_len EQU $-green
+        green_bg db `\033[42m`, 0
+        green_bg_len EQU $-green_bg
+
+        yellow db `\033[33m`, 0
+        yellow_len EQU $-yellow
+        yellow_bg db `\033[43m`, 0
+        yellow_bg_len EQU $-yellow_bg
+
+        blue db `\033[34m`, 0
         blue_len EQU $-blue
+        blue_bg db `\033[44m`, 0
+        blue_bg_len EQU $-blue_bg
+
+        magenta db `\033[35m`, 0
+        magenta_len EQU $-magenta
+        magenta_bg db `\033[45m`, 0
+        magenta_bg_len EQU $-magenta_bg
+
+        cyan db `\033[36m`, 0
+        cyan_len EQU $-cyan
+        cyan_bg db `\033[46m`, 0
+        cyan_bg_len EQU $-cyan_bg
+
+        white db `\033[37m`, 0
+        white_len EQU $-white
+        white_bg db `\033[47m`, 0
+        white_bg_len EQU $-white_bg
+
+        default_color db `\033[39m`, 0
+        default_color_len EQU $-default_color
+        default_color_bg db `\033[49m`, 0
+        default_color_bg_len EQU $-default_color_bg
+        ; ==== ^^^^^^ ==== ;
+
+        ; ==== CURSOR CONTROLS ==== ;
         reset db `\033[0m`, 0
         reset_len EQU $-reset
+
         home db `\033[H`,0
         home_len EQU $-home
 
-        pointchar db 0x20
-
-        one_line_up db `\033[1A`, 0
-        one_line_up_len EQU $-one_line_up
-        one_line_down db `\033[1B`, 0
-        one_line_down_len EQU $-one_line_down
         one_col_right db `\033[1C`, 0
         one_col_right_len EQU $-one_col_right
         one_col_left db `\033[1D`, 0
         one_col_left_len EQU $-one_col_left
 
-        ; ESC[2J - clear screen
-        backspace db 0x08
+        one_line_up db `\033[1A`, 0
+        one_line_up_len EQU $-one_line_up
+        one_line_down db `\033[1B`, 0
+        one_line_down_len EQU $-one_line_down
+        ; ==== ^^^^^^^^^^^^^^^ ==== ;
+        
+        
 
-        delay dq 0, 5000000
 
-
-        ; --------------------------
+        ; ==== BOX SETUPS ==== ;
         ; point1 dd -0.25, -0.25, 1.4, 0
         ; point2 dd -0.25, 0.25, 1.4, 0
         ; point3 dd 0.25, -0.25, 1.4, 0
@@ -87,7 +128,7 @@ section .data
         ; point7 dd 0.25, -0.25, 1.65, 0
         ; point8 dd 0.25, 0.25, 1.65, 0
 
-        ; =====<
+        ; ----<
 
         ; point1 dd -0.25, -0.25, 1.4, 0
         ; point2 dd -0.25, 0.25, 1.4, 0
@@ -102,7 +143,7 @@ section .data
         ; point7 dd 0.8, -0.8, 2.65, 0
         ; point8 dd 0.8, 0.8, 2.65, 0
 
-        ; =====<
+        ; ----<
 
         point1 dd -0.5, -1.0, 1.0, 0
         point2 dd -0.5, 1.0, 1.0, 0
@@ -117,25 +158,42 @@ section .data
         point7 dd 0.5, -1.0, 2.0, 0
         point8 dd 0.5, 1.0, 2.0, 0
 
-        ; --------------------------
+        ; ==== ^^^^^^^^^^ ==== ;
 
-        step dd 0.005
-        smallstep dd 0.05
-        float_zero dd 0.0
-        float_height_m1 dd 39.0
-        float_height dd 40.0
-        float_width_m1 dd 154.0
-        float_width dd 155.0
+        ; ==== FLOAT CONSTANTS ==== ;
         two_float dd 2.0
         float_one dd 1.0
+        float_zero dd 0.0
+        float_minus_one dd -1.0
         minus_two_float dd -2.0
+
+        float_height dd 40.0
+        float_height_m1 dd 39.0
+        
+        float_width dd 155.0
+        float_width_m1 dd 154.0
+
+        deviation dd 0.0001
+        ; ==== ^^^^^^^^^^^^^^^ ==== ;
+
+        ; ==== ANIMATION PARAMS ==== ;
+        step dd 0.005
+        smallstep dd 0.05
+
         max_x dd 1.0
         min_x dd -1.0
 
-        deviation dd 0.0001
+        delay dq 0, 5000000
 
+        ; ---- ---- ASCII <
+        pointchar db 0x30
 
-        
+        row TIMES WIDTH db 0x20
+        row_len EQU $-row
+        ; ---- <
+
+        ; ==== ^^^^^^^^^^^^^^^^ ==== ;   
+
 
 section .bss
         box1 resb box_size
@@ -198,18 +256,17 @@ _start:
         mov r10, 1
         mov r12, 1
         
-        wait_start:
-                mov rax, 35
+        .wait_start:
+                mov rax, NANOSLEEP
                 mov rdi, delay
                 xor rsi, rsi
                 syscall
 
                 
-
                 cmp r10, 1
-                je z_1
-                jmp z_0
-                z_1:
+                je .z_1
+                jmp .z_0
+                .z_1:
                         lea rax, [box1 + box.pl1]
                         push rax
                         call move_plane_forward
@@ -227,10 +284,10 @@ _start:
 
                         cmp rax, 1
                         
-                        je z_set_0
+                        je .z_set_0
                         
-                        jmp z_over
-                z_0:
+                        jmp .z_over
+                .z_0:
                         lea rax, [box1 + box.pl1]
                         push rax
                         call move_plane_back
@@ -248,22 +305,22 @@ _start:
 
                         cmp rax, 1
                         
-                        je z_set_1
+                        je .z_set_1
                         
-                        jmp z_over
-                z_set_0:
+                        jmp .z_over
+                .z_set_0:
                         mov r10, 0
-                        jmp z_over
-                z_set_1:
+                        jmp .z_over
+                .z_set_1:
                         mov r10, 1
-                        jmp z_over
-                z_over:
+                        jmp .z_over
+                .z_over:
 
 
                 cmp r12, 1
-                je x_1
-                jmp x_0
-                x_1:
+                je .x_1
+                jmp .x_0
+                .x_1:
                         lea rax, [box1 + box.pl1]
                         push rax
                         call move_plane_right
@@ -281,9 +338,9 @@ _start:
                         
                         cmp rax, 1
 
-                        je x_set_0
-                        jmp x_over
-                x_0:
+                        je .x_set_0
+                        jmp .x_over
+                .x_0:
                         lea rax, [box1 + box.pl1]
                         push rax
                         call move_plane_left
@@ -299,9 +356,9 @@ _start:
                         call plane_touching_wall_x
                         add rsp, 8
                         cmp rax, 1
-                        je x_set_1
-                        jmp x_over
-                x_set_0:
+                        je .x_set_1
+                        jmp .x_over
+                .x_set_0:
                         lea rax, [box1 + box.pl1]
                         push rax
                         call move_plane_left
@@ -313,8 +370,8 @@ _start:
                         add rsp, 8
 
                         mov r12, 0
-                        jmp x_over
-                x_set_1:
+                        jmp .x_over
+                .x_set_1:
                         lea rax, [box1 + box.pl1]
                         push rax
                         call move_plane_right
@@ -326,131 +383,24 @@ _start:
                         add rsp, 8
 
                         mov r12, 1
-                        jmp x_over
-                x_over:
-
-                ; cmp r12, 1
-                ; je y_1
-                ; jmp y_0
-                ; y_1:
-                ;         mov rax, plane1
-                ;         push rax
-                ;         call move_plane_up
-                ;         add rsp, 8
-                ;         mov rax, plane2
-                ;         push rax
-                ;         call move_plane_up
-                ;         add rsp, 8
-
-                ;         mov rax, plane1
-                ;         push rax
-                ;         call plane_touching_wall_y
-                ;         add rsp, 8
-                        
-                ;         cmp rax, 1
-
-                ;         je y_set_0
-
-                ;         mov rax, plane2
-                ;         push rax
-                ;         call plane_touching_wall_y
-                ;         add rsp, 8
-                        
-                ;         cmp rax, 1
-
-                ;         je y_set_0
-                ;         jmp y_over
-                ; y_0:
-                ;         mov rax, plane1
-                ;         push rax
-                ;         call move_plane_down
-                ;         add rsp, 8
-
-                ;         mov rax, plane2
-                ;         push rax
-                ;         call move_plane_down
-                ;         add rsp, 8
-
-                ;         mov rax, plane1
-                ;         push rax
-                ;         call plane_touching_wall_y
-                ;         add rsp, 8
-
-                ;         cmp rax, 1
-                        
-                ;         je y_set_1
-
-                ;         mov rax, plane2
-                ;         push rax
-                ;         call plane_touching_wall_y
-                ;         add rsp, 8
-
-                ;         cmp rax, 1
-                        
-                ;         je y_set_1
-                ;         jmp y_over
-                ; y_set_0:
-                ;         mov r12, 0
-                ;         jmp y_over
-                ; y_set_1:
-                ;         mov r12, 1
-                ;         jmp y_over
-                ; y_over:
+                        jmp .x_over
+                .x_over:
                 
-
-                jmp draw_points
+                jmp .draw
                 
         
 
-        draw_points:
+        .draw:
+                call ansi_reset
                 call go_home
                 call fill_background
-                call make_red
 
                 mov rax, box1
                 push rax
                 call draw_box
                 add rsp, 8
-                ; mov rax, plane1
-                ; push rax
-                ; call draw_plane
-                ; add rsp, 8
 
-                ; mov rax, plane1 + plane.p1
-                ; push rax
-                ; mov rax, plane2 + plane.p1
-                ; push rax
-                ; call draw_line
-                ; add rsp, 8*2
-
-                ; mov rax, plane1 + plane.p2
-                ; push rax
-                ; mov rax, plane2 + plane.p2
-                ; push rax
-                ; call draw_line
-                ; add rsp, 8*2
-
-                ; mov rax, plane1 + plane.p3
-                ; push rax
-                ; mov rax, plane2 + plane.p3
-                ; push rax
-                ; call draw_line
-                ; add rsp, 8*2
-
-                ; mov rax, plane1 + plane.p4
-                ; push rax
-                ; mov rax, plane2 + plane.p4
-                ; push rax
-                ; call draw_line
-                ; add rsp, 8*2
-
-                ; mov rax, plane2
-                ; push rax
-                ; call draw_plane
-                ; add rsp, 8
-
-                call ansi_reset
-                jmp wait_start
+                jmp .wait_start
         
         
 
@@ -478,6 +428,14 @@ fill_background:
 
         ret
 
+make_black:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, black
+        mov rdx, black_len
+        syscall
+        ret
+
 make_red:
         mov rax, SYS_WRITE
         mov rdi, STDOUT
@@ -486,11 +444,59 @@ make_red:
         syscall
         ret
 
+make_green:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, green
+        mov rdx, green_len
+        syscall
+        ret
+
+make_yellow:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, yellow
+        mov rdx, yellow_len
+        syscall
+        ret
+
 make_blue:
         mov rax, SYS_WRITE
         mov rdi, STDOUT
         mov rsi, blue
         mov rdx, blue_len
+        syscall
+        ret
+
+make_magenta:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, magenta
+        mov rdx, magenta_len
+        syscall
+        ret
+
+make_cyan:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, cyan
+        mov rdx, cyan_len
+        syscall
+        ret
+
+make_white:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, white
+        mov rdx, white_len
+        syscall
+        ret
+
+make_default_color:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, default_color
+        mov rdx, default_color_len
         syscall
         ret
 
@@ -510,9 +516,9 @@ ansi_reset:
         syscall
         ret
 
+
 %define x rbp + 24
 %define y rbp + 16
-
 move_cursor:
         push rbp
         mov rbp, rsp
@@ -521,37 +527,36 @@ move_cursor:
         mov r14, [x]
         mov r15, [y]
 
-        line_loop:
+        .line_loop:
                 cmp r15, 0
-                je row_loop
+                je .row_loop
                 mov rax, SYS_WRITE
                 mov rdi, STDOUT
                 mov rsi, one_line_down
                 mov rdx, one_line_down_len
                 syscall
                 dec r15
-                jmp line_loop
-        row_loop:
+                jmp .line_loop
+        .row_loop:
                 cmp r14, 0
-                je end
+                je .end
                 mov rax, SYS_WRITE
                 mov rdi, STDOUT
                 mov rsi, one_col_right
                 mov rdx, one_col_right_len
                 syscall
                 dec r14
-                jmp row_loop
-        end:
+                jmp .row_loop
+        .end:
                 pop rbp
                 ret
-
 %undef y
 %undef x
+
 
 %define z rbp + 32
 %define y rbp + 24
 %define x rbp + 16
-
 draw_point:
         push rbp
         mov rbp, rsp
@@ -606,8 +611,6 @@ draw_point:
         .end:
                 pop rbp
                 ret
-
-
 %undef z
 %undef y
 %undef x
@@ -644,6 +647,7 @@ move_plane_right:
         ret
 %undef arg1
 
+
 %define arg1 rbp + 16
 move_plane_left:
         push rbp
@@ -674,6 +678,7 @@ move_plane_left:
         pop rbp
         ret
 %undef arg1
+
 
 %define arg1 rbp + 16
 move_plane_up:
@@ -742,6 +747,7 @@ move_plane_down:
         ret
 %undef arg1
 
+
 %define arg1 rbp + 16
 move_plane_back:
         push rbp
@@ -774,6 +780,7 @@ move_plane_back:
         pop rbp
         ret
 %undef arg1
+
 
 %define arg1 rbp + 16
 move_plane_forward:
