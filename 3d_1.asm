@@ -65,7 +65,7 @@ section .data
         ; ESC[2J - clear screen
         backspace db 0x08
 
-        delay dq 0, 50000000
+        delay dq 0, 5000000
 
 
         ; --------------------------
@@ -125,7 +125,7 @@ section .data
         float_one dd 1.0
         minus_two_float dd -2.0
 
-        deviation dd 0.001
+        deviation dd 0.0001
 
 
         
@@ -198,76 +198,76 @@ _start:
 
                 
 
-                cmp r10, 1
-                je z_1
-                jmp z_0
-                z_1:
-                        mov rax, plane1
-                        push rax
-                        call move_plane_forward
-                        add rsp, 8
+                ; cmp r10, 1
+                ; je z_1
+                ; jmp z_0
+                ; z_1:
+                ;         mov rax, plane1
+                ;         push rax
+                ;         call move_plane_forward
+                ;         add rsp, 8
 
-                        mov rax, plane2
-                        push rax
-                        call move_plane_forward
-                        add rsp, 8
+                ;         mov rax, plane2
+                ;         push rax
+                ;         call move_plane_forward
+                ;         add rsp, 8
 
-                        mov rax, plane1
-                        push rax
-                        call plane1_z_limit_check
-                        add rsp, 8
+                ;         mov rax, plane1
+                ;         push rax
+                ;         call plane1_z_limit_check
+                ;         add rsp, 8
 
-                        cmp rax, 1
+                ;         cmp rax, 1
                         
-                        je z_set_0
-                        
-
-                        ; mov rax, plane2
-                        ; push rax
-                        ; call plane1_z_limit_check
-                        ; add rsp, 8
-                        
-                        ; cmp rax, 1
-
-                        ; je z_set_0
-                        jmp z_over
-                z_0:
-                        mov rax, plane1
-                        push rax
-                        call move_plane_back
-                        add rsp, 8
-
-                        mov rax, plane2
-                        push rax
-                        call move_plane_back
-                        add rsp, 8
-
-                        mov rax, plane1
-                        push rax
-                        call plane1_z_limit_check
-                        add rsp, 8
-
-                        cmp rax, 1
-                        
-                        je z_set_1
+                ;         je z_set_0
                         
 
-                        ; mov rax, plane2
-                        ; push rax
-                        ; call plane1_z_limit_check
-                        ; add rsp, 8
-
-                        ; cmp rax, 1
+                ;         ; mov rax, plane2
+                ;         ; push rax
+                ;         ; call plane1_z_limit_check
+                ;         ; add rsp, 8
                         
-                        ; je z_set_1
-                        jmp z_over
-                z_set_0:
-                        mov r10, 0
-                        jmp z_over
-                z_set_1:
-                        mov r10, 1
-                        jmp z_over
-                z_over:
+                ;         ; cmp rax, 1
+
+                ;         ; je z_set_0
+                ;         jmp z_over
+                ; z_0:
+                ;         mov rax, plane1
+                ;         push rax
+                ;         call move_plane_back
+                ;         add rsp, 8
+
+                ;         mov rax, plane2
+                ;         push rax
+                ;         call move_plane_back
+                ;         add rsp, 8
+
+                ;         mov rax, plane1
+                ;         push rax
+                ;         call plane1_z_limit_check
+                ;         add rsp, 8
+
+                ;         cmp rax, 1
+                        
+                ;         je z_set_1
+                        
+
+                ;         ; mov rax, plane2
+                ;         ; push rax
+                ;         ; call plane1_z_limit_check
+                ;         ; add rsp, 8
+
+                ;         ; cmp rax, 1
+                        
+                ;         ; je z_set_1
+                ;         jmp z_over
+                ; z_set_0:
+                ;         mov r10, 0
+                ;         jmp z_over
+                ; z_set_1:
+                ;         mov r10, 1
+                ;         jmp z_over
+                ; z_over:
 
 
                 cmp r12, 1
@@ -392,15 +392,36 @@ _start:
                 call draw_plane
                 add rsp, 8
 
-                mov rax, point1
+                mov rax, plane1 + plane.p1
                 push rax
-                mov rax, point5
+                mov rax, plane2 + plane.p1
                 push rax
                 call draw_line
                 add rsp, 8*2
 
-                call ansi_reset
-                call make_blue
+                mov rax, plane1 + plane.p2
+                push rax
+                mov rax, plane2 + plane.p2
+                push rax
+                call draw_line
+                add rsp, 8*2
+
+                mov rax, plane1 + plane.p3
+                push rax
+                mov rax, plane2 + plane.p3
+                push rax
+                call draw_line
+                add rsp, 8*2
+
+                mov rax, plane1 + plane.p4
+                push rax
+                mov rax, plane2 + plane.p4
+                push rax
+                call draw_line
+                add rsp, 8*2
+
+                ; call ansi_reset
+                ; call make_blue
                 mov rax, plane2
                 push rax
                 call draw_plane
@@ -1031,6 +1052,7 @@ draw_plane:
 
 %define curpx xmm8
 %define curpy xmm9
+%define curpz xmm14
 
 %define temp xmm10
 
@@ -1062,6 +1084,7 @@ draw_line:
 
         movss curpx, p1_x
         movss curpy, p1_y
+        movss curpz, p1_z
         .decide:
                 movss temp, _dx
                 mulss temp, temp
@@ -1082,6 +1105,13 @@ draw_line:
                 mulss temp, slope
                 addss curpy, temp
 
+                movss temp, curpx
+                subss temp, p1_x
+                divss temp, _dx
+                mulss temp, _dz
+                movss curpz, p1_z
+                addss curpz, temp
+
                 ucomiss curpx, p2_x
                 jae .end
                 jmp .loop_shared
@@ -1094,11 +1124,24 @@ draw_line:
                 mulss temp, slope
                 addss curpy, temp
 
+                movss temp, curpx
+                subss temp, p1_x
+                divss temp, _dx
+                mulss temp, _dz
+                movss curpz, p1_z
+                addss curpz, temp
+
                 ucomiss curpx, p2_x
                 jbe .end
                 jmp .loop_shared
         
         .vertical:
+                movss temp, _dy
+                mulss temp, temp
+                sqrtss temp, temp
+                ucomiss temp, [deviation]
+                jb .z
+
                 ucomiss _dy, [float_zero]
                 jae .vertical_up
                 jbe .vertical_down
@@ -1106,19 +1149,52 @@ draw_line:
         
         .vertical_up:
                 addss curpy, [smallstep]
+                
+                movss temp, curpy
+                subss temp, p1_y
+                divss temp, _dy
+                mulss temp, _dz
+                movss curpz, p1_z
+                addss curpz, temp
+
                 ucomiss curpy, p2_y
                 jae .end
                 jmp .loop_shared
         .vertical_down:
                 subss curpy, [smallstep]
+
+                movss temp, curpy
+                subss temp, p1_y
+                divss temp, _dy
+                mulss temp, _dz
+                movss curpz, p1_z
+                addss curpz, temp
+
                 ucomiss curpy, p2_y
+                jbe .end
+                jmp .loop_shared
+        
+        .z:
+                ucomiss _dz, [float_zero]
+                jae .z_up
+                jbe .z_down
+                jmp .end
+        .z_up:
+                addss curpz, [smallstep]
+                ucomiss curpz, p2_z
+                jae .end
+                jmp .loop_shared
+
+        .z_down:
+                subss curpz, [smallstep]
+                ucomiss curpz, p2_z
                 jbe .end
                 jmp .loop_shared
 
         .loop_shared:
                 sub rsp, 8
                 mov [rsp], 0
-                movss dword [rsp], p1_z
+                movss dword [rsp], curpz
                 sub rsp, 8
                 mov [rsp], 0
                 movss dword [rsp], curpy
