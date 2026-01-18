@@ -13,6 +13,21 @@
         syscall
 %endmacro
 
+
+; %macro MACRO_CUBE 4
+;         %4:
+;                 dd %1 - 0.25, %2 - 0.25, %3 + 0.25, 0
+;                 dd %1 - 0.25, %2 + 0.25, %3 + 0.25, 0
+;                 dd %1 + 0.25, %2 - 0.25, %3 + 0.25, 0
+;                 dd %1 + 0.25, %2 + 0.25, %3 + 0.25, 0
+
+;                 dd %1 - 0.25, %2 - 0.25, %3 - 0.25, 0
+;                 dd %1 - 0.25, %2 + 0.25, %3 - 0.25, 0
+;                 dd %1 + 0.25, %2 - 0.25, %3 - 0.25, 0
+;                 dd %1 + 0.25, %2 + 0.25, %3 - 0.25, 0
+; %endmacro
+
+
 %define WIDTH 155
 %define HEIGHT 40
 %define LENGTH 30
@@ -158,7 +173,249 @@ section .data
         point7 dd 0.5, -1.0, 4.0, 0
         point8 dd 0.5, 1.0, 4.0, 0
 
-        point_center dd 4.0, 0.0, 3.5, 0
+        point_center dd 0.0, 0.0, 3.5, 0
+
+
+        cube0:
+        dd -0.51, 0.9, 3.25, 0.0
+        dd -0.51, 0.4, 3.25, 0.0
+        dd -1.01, 0.9, 3.25, 0.0
+        dd -1.01, 0.4, 3.25, 0.0
+
+        dd -0.51, 0.9, 3.75, 0.0
+        dd -0.51, 0.4, 3.75, 0.0
+        dd -1.01, 0.9, 3.75, 0.0
+        dd -1.01, 0.4, 3.75, 0.0
+cube1:
+        dd 0.404, -0.738, 3.25, 0.0
+        dd 0.404, -1.238, 3.25, 0.0
+        dd -0.096, -0.738, 3.25, 0.0
+        dd -0.096, -1.238, 3.25, 0.0
+
+        dd 0.404, -0.738, 3.75, 0.0
+        dd 0.404, -1.238, 3.75, 0.0
+        dd -0.096, -0.738, 3.75, 0.0
+        dd -0.096, -1.238, 3.75, 0.0
+cube2:
+        dd 0.775, 1.101, 3.25, 0.0
+        dd 0.775, 0.601, 3.25, 0.0
+        dd 0.275, 1.101, 3.25, 0.0
+        dd 0.275, 0.601, 3.25, 0.0
+
+        dd 0.775, 1.101, 3.75, 0.0
+        dd 0.775, 0.601, 3.75, 0.0
+        dd 0.275, 1.101, 3.75, 0.0
+        dd 0.275, 0.601, 3.75, 0.0
+cube3:
+        dd -0.702, -0.055, 3.25, 0.0
+        dd -0.702, -0.555, 3.25, 0.0
+        dd -1.202, -0.055, 3.25, 0.0
+        dd -1.202, -0.555, 3.25, 0.0
+
+        dd -0.702, -0.055, 3.75, 0.0
+        dd -0.702, -0.555, 3.75, 0.0
+        dd -1.202, -0.055, 3.75, 0.0
+        dd -1.202, -0.555, 3.75, 0.0
+cube4:
+        dd 1.172, -0.138, 3.25, 0.0
+        dd 1.172, -0.638, 3.25, 0.0
+        dd 0.672, -0.138, 3.25, 0.0
+        dd 0.672, -0.638, 3.25, 0.0
+
+        dd 1.172, -0.138, 3.75, 0.0
+        dd 1.172, -0.638, 3.75, 0.0
+        dd 0.672, -0.138, 3.75, 0.0
+        dd 0.672, -0.638, 3.75, 0.0
+cube5:
+        dd -0.198, 1.144, 3.25, 0.0
+        dd -0.198, 0.644, 3.25, 0.0
+        dd -0.698, 1.144, 3.25, 0.0
+        dd -0.698, 0.644, 3.25, 0.0
+
+        dd -0.198, 1.144, 3.75, 0.0
+        dd -0.198, 0.644, 3.75, 0.0
+        dd -0.698, 1.144, 3.75, 0.0
+        dd -0.698, 0.644, 3.75, 0.0
+cube6:
+        dd 0.009, -0.721, 3.25, 0.0
+        dd 0.009, -1.221, 3.25, 0.0
+        dd -0.491, -0.721, 3.25, 0.0
+        dd -0.491, -1.221, 3.25, 0.0
+
+        dd 0.009, -0.721, 3.75, 0.0
+        dd 0.009, -1.221, 3.75, 0.0
+        dd -0.491, -0.721, 3.75, 0.0
+        dd -0.491, -1.221, 3.75, 0.0
+cube7:
+        dd 1.064, 0.831, 3.25, 0.0
+        dd 1.064, 0.331, 3.25, 0.0
+        dd 0.564, 0.831, 3.25, 0.0
+        dd 0.564, 0.331, 3.25, 0.0
+
+        dd 1.064, 0.831, 3.75, 0.0
+        dd 1.064, 0.331, 3.75, 0.0
+        dd 0.564, 0.831, 3.75, 0.0
+        dd 0.564, 0.331, 3.75, 0.0
+cube8:
+        dd -0.746, 0.338, 3.25, 0.0
+        dd -0.746, -0.162, 3.25, 0.0
+        dd -1.246, 0.338, 3.25, 0.0
+        dd -1.246, -0.162, 3.25, 0.0
+
+        dd -0.746, 0.338, 3.75, 0.0
+        dd -0.746, -0.162, 3.75, 0.0
+        dd -1.246, 0.338, 3.75, 0.0
+        dd -1.246, -0.162, 3.75, 0.0
+cube9:
+        dd 0.949, -0.465, 3.25, 0.0
+        dd 0.949, -0.965, 3.25, 0.0
+        dd 0.449, -0.465, 3.25, 0.0
+        dd 0.449, -0.965, 3.25, 0.0
+
+        dd 0.949, -0.465, 3.75, 0.0
+        dd 0.949, -0.965, 3.75, 0.0
+        dd 0.449, -0.465, 3.75, 0.0
+        dd 0.449, -0.965, 3.75, 0.0
+cube10:
+        dd 0.184, 1.248, 3.25, 0.0
+        dd 0.184, 0.748, 3.25, 0.0
+        dd -0.316, 1.248, 3.25, 0.0
+        dd -0.316, 0.748, 3.25, 0.0
+
+        dd 0.184, 1.248, 3.75, 0.0
+        dd 0.184, 0.748, 3.75, 0.0
+        dd -0.316, 1.248, 3.75, 0.0
+        dd -0.316, 0.748, 3.75, 0.0
+cube11:
+        dd -0.348, -0.551, 3.25, 0.0
+        dd -0.348, -1.051, 3.25, 0.0
+        dd -0.848, -0.551, 3.25, 0.0
+        dd -0.848, -1.051, 3.25, 0.0
+
+        dd -0.348, -0.551, 3.75, 0.0
+        dd -0.348, -1.051, 3.75, 0.0
+        dd -0.848, -0.551, 3.75, 0.0
+        dd -0.848, -1.051, 3.75, 0.0
+cube12:
+        dd 1.226, 0.469, 3.25, 0.0
+        dd 1.226, -0.031, 3.25, 0.0
+        dd 0.726, 0.469, 3.25, 0.0
+        dd 0.726, -0.031, 3.25, 0.0
+
+        dd 1.226, 0.469, 3.75, 0.0
+        dd 1.226, -0.031, 3.75, 0.0
+        dd 0.726, 0.469, 3.75, 0.0
+        dd 0.726, -0.031, 3.75, 0.0
+cube13:
+        dd -0.634, 0.718, 3.25, 0.0
+        dd -0.634, 0.218, 3.25, 0.0
+        dd -1.134, 0.718, 3.25, 0.0
+        dd -1.134, 0.218, 3.25, 0.0
+
+        dd -0.634, 0.718, 3.75, 0.0
+        dd -0.634, 0.218, 3.75, 0.0
+        dd -1.134, 0.718, 3.75, 0.0
+        dd -1.134, 0.218, 3.75, 0.0
+cube14:
+        dd 0.617, -0.68, 3.25, 0.0
+        dd 0.617, -1.18, 3.25, 0.0
+        dd 0.117, -0.68, 3.25, 0.0
+        dd 0.117, -1.18, 3.25, 0.0
+
+        dd 0.617, -0.68, 3.75, 0.0
+        dd 0.617, -1.18, 3.75, 0.0
+        dd 0.117, -0.68, 3.75, 0.0
+        dd 0.117, -1.18, 3.75, 0.0
+cube15:
+        dd 0.576, 1.195, 3.25, 0.0
+        dd 0.576, 0.695, 3.25, 0.0
+        dd 0.076, 1.195, 3.25, 0.0
+        dd 0.076, 0.695, 3.25, 0.0
+
+        dd 0.576, 1.195, 3.75, 0.0
+        dd 0.576, 0.695, 3.75, 0.0
+        dd 0.076, 1.195, 3.75, 0.0
+        dd 0.076, 0.695, 3.75, 0.0
+cube16:
+        dd -0.612, -0.256, 3.25, 0.0
+        dd -0.612, -0.756, 3.25, 0.0
+        dd -1.112, -0.256, 3.25, 0.0
+        dd -1.112, -0.756, 3.25, 0.0
+
+        dd -0.612, -0.256, 3.75, 0.0
+        dd -0.612, -0.756, 3.75, 0.0
+        dd -1.112, -0.256, 3.75, 0.0
+        dd -1.112, -0.756, 3.75, 0.0
+cube17:
+        dd 1.234, 0.074, 3.25, 0.0
+        dd 1.234, -0.426, 3.25, 0.0
+        dd 0.734, 0.074, 3.25, 0.0
+        dd 0.734, -0.426, 3.25, 0.0
+
+        dd 1.234, 0.074, 3.75, 0.0
+        dd 1.234, -0.426, 3.75, 0.0
+        dd 0.734, 0.074, 3.75, 0.0
+        dd 0.734, -0.426, 3.75, 0.0
+cube18:
+        dd -0.383, 1.024, 3.25, 0.0
+        dd -0.383, 0.524, 3.25, 0.0
+        dd -0.883, 1.024, 3.25, 0.0
+        dd -0.883, 0.524, 3.25, 0.0
+
+        dd -0.383, 1.024, 3.75, 0.0
+        dd -0.383, 0.524, 3.75, 0.0
+        dd -0.883, 1.024, 3.75, 0.0
+        dd -0.883, 0.524, 3.75, 0.0
+cube19:
+        dd 0.228, -0.75, 3.25, 0.0
+        dd 0.228, -1.25, 3.25, 0.0
+        dd -0.272, -0.75, 3.25, 0.0
+        dd -0.272, -1.25, 3.25, 0.0
+
+        dd 0.228, -0.75, 3.75, 0.0
+        dd 0.228, -1.25, 3.75, 0.0
+        dd -0.272, -0.75, 3.75, 0.0
+        dd -0.272, -1.25, 3.75, 0.0
+cube20:
+        dd 0.917, 0.995, 3.25, 0.0
+        dd 0.917, 0.495, 3.25, 0.0
+        dd 0.417, 0.995, 3.25, 0.0
+        dd 0.417, 0.495, 3.25, 0.0
+
+        dd 0.917, 0.995, 3.75, 0.0
+        dd 0.917, 0.495, 3.75, 0.0
+        dd 0.417, 0.995, 3.75, 0.0
+        dd 0.417, 0.495, 3.75, 0.0
+cube21:
+        dd -0.741, 0.118, 3.25, 0.0
+        dd -0.741, -0.382, 3.25, 0.0
+        dd -1.241, 0.118, 3.25, 0.0
+        dd -1.241, -0.382, 3.25, 0.0
+
+        dd -0.741, 0.118, 3.75, 0.0
+        dd -0.741, -0.382, 3.75, 0.0
+        dd -1.241, 0.118, 3.75, 0.0
+        dd -1.241, -0.382, 3.75, 0.0
+cube22:
+        dd 1.089, -0.294, 3.25, 0.0
+        dd 1.089, -0.794, 3.25, 0.0
+        dd 0.589, -0.294, 3.25, 0.0
+        dd 0.589, -0.794, 3.25, 0.0
+
+        dd 1.089, -0.294, 3.75, 0.0
+        dd 1.089, -0.794, 3.75, 0.0
+        dd 0.589, -0.294, 3.75, 0.0
+        dd 0.589, -0.794, 3.75, 0.0
+cube23:
+        dd -0.034, 1.209, 3.25, 0.0
+        dd -0.034, 0.709, 3.25, 0.0
+        dd -0.534, 1.209, 3.25, 0.0
+        dd -0.534, 0.709, 3.25, 0.0
+
+        dd -0.034, 1.209, 3.75, 0.0
+        dd -0.034, 0.709, 3.75, 0.0
+        dd -0.534, 1.209, 3.75, 0.0
+        dd -0.534, 0.709, 3.75, 0.0
 
         ; ==== ^^^^^^^^^^ ==== ;
 
@@ -183,6 +440,7 @@ section .data
         float_width_m1 dd 154.0
 
         deviation dd 0.0001
+        float_negative_z_limit dd -5.85
         ; ==== ^^^^^^^^^^^^^^^ ==== ;
 
         ; ==== ANIMATION PARAMS ==== ;
@@ -193,7 +451,7 @@ section .data
         max_x dd 1.0
         min_x dd -1.0
 
-        delay dq 0, 50000000
+        delay dq 0, 5000
 
         ; ---- ---- ASCII <
         pointchar db 0x30
@@ -260,17 +518,38 @@ _start:
 
         call go_home
         
-        
+        %macro MACRO_ANIMATE_CUBE 1
+                mov rax, %1
+                push rax
+                call draw_box
+                add rsp, 8
+                
 
+                lea rax, [%1 + box.pl1]
+                push rax
+                call move_plane_forward
+                add rsp, 8
+                lea rax, [%1 + box.pl2]
+                push rax
+                call move_plane_forward
+                add rsp, 8
+
+                push %1
+                push point_center
+                call rotate_box
+                add rsp, 16
+        %endmacro
+
+        
         ; r10 - z dir
         mov r10, 1
         mov r12, 1
         
         .wait_start:
-                mov rax, NANOSLEEP
-                mov rdi, delay
-                xor rsi, rsi
-                syscall
+                ; mov rax, NANOSLEEP
+                ; mov rdi, delay
+                ; xor rsi, rsi
+                ; syscall
 
                 ; mov rax, point_center
                 ; movss xmm0, [rax + point.x]
@@ -406,34 +685,72 @@ _start:
 
         .draw:
                 call ansi_reset
+
+                mov rax, point_center
+                movss xmm0, [rax + point.z]
+                movss xmm1, [smallstep]
+                subss xmm0, xmm1
+                movss [rax + point.z], xmm0
+                movss xmm1, [float_negative_z_limit]
+                ucomiss xmm0, xmm1
+                jbe .over
+                jmp .fine
+
+                .over:
+                        
+                        MACRO_EXIT
+                .fine:
+
                 call go_home
                 call fill_background
 
-                mov rax, box1
-                push rax
-                call draw_box
-                add rsp, 8
+                
 
-                push box1
-                push point_center
-                call rotate_box
-                add rsp, 16
+                MACRO_ANIMATE_CUBE cube0
+                MACRO_ANIMATE_CUBE cube1
+                MACRO_ANIMATE_CUBE cube2
+                MACRO_ANIMATE_CUBE cube3
+                MACRO_ANIMATE_CUBE cube4
+                MACRO_ANIMATE_CUBE cube5
+                MACRO_ANIMATE_CUBE cube6
+                MACRO_ANIMATE_CUBE cube7
+                MACRO_ANIMATE_CUBE cube8
+                MACRO_ANIMATE_CUBE cube9
+                MACRO_ANIMATE_CUBE cube10
+                MACRO_ANIMATE_CUBE cube11
+                MACRO_ANIMATE_CUBE cube12
+                MACRO_ANIMATE_CUBE cube13
+                MACRO_ANIMATE_CUBE cube14
+                MACRO_ANIMATE_CUBE cube15
+                MACRO_ANIMATE_CUBE cube16
+                MACRO_ANIMATE_CUBE cube17
+                MACRO_ANIMATE_CUBE cube18
+                MACRO_ANIMATE_CUBE cube19
+                MACRO_ANIMATE_CUBE cube20
+                MACRO_ANIMATE_CUBE cube21
+                MACRO_ANIMATE_CUBE cube22
+                MACRO_ANIMATE_CUBE cube23
+                
 
-                movss xmm0, dword [point_center + point.x]
-                movss xmm1, dword [point_center + point.y]
-                movss xmm2, dword [point_center + point.z]
-                sub rsp, 8
-                mov [rsp], 0
-                movss dword [rsp], xmm2
-                sub rsp, 8
-                mov [rsp], 0
-                movss dword [rsp], xmm1
-                sub rsp, 8
-                mov [rsp], 0
-                movss dword [rsp], xmm0
-                call draw_point
-                add rsp, 8*3
+                ; movss xmm0, dword [point_center + point.x]
+                ; movss xmm1, dword [point_center + point.y]
+                ; movss xmm2, dword [point_center + point.z]
+                ; sub rsp, 8
+                ; mov [rsp], 0
+                ; movss dword [rsp], xmm2
+                ; sub rsp, 8
+                ; mov [rsp], 0
+                ; movss dword [rsp], xmm1
+                ; sub rsp, 8
+                ; mov [rsp], 0
+                ; movss dword [rsp], xmm0
+                ; call draw_point
+                ; add rsp, 8*3
 
+                mov rax, NANOSLEEP
+                mov rdi, delay
+                xor rsi, rsi
+                syscall
                 jmp .wait_start
         
         
@@ -1518,11 +1835,324 @@ rotate_point:
 %undef angle
 
 
+
+%define ang_arg rbp + 16
+%define _po rbp + 24
+%define _p rbp + 32
+
+%define resx xmm5
+%define resy xmm6
+%define resz xmm7
+
+%define p_x xmm1
+%define p_y xmm2
+%define p_z xmm11
+
+%define po_x xmm3
+%define po_y xmm4
+%define po_z xmm12
+
+%define temp xmm8
+%define temp2 xmm9
+%define temp3 xmm13
+%define sine xmm14
+%define cosine xmm15
+%define angle xmm10
+rotate_point_z:
+        push rbp
+        mov rbp, rsp
+
+        mov rax, [_p]
+        movss p_x, [rax + point.x]
+        movss p_y, [rax + point.y]
+        movss p_z, [rax + point.z]
+
+        mov rax, [_po]
+        movss po_x, [rax + point.x]
+        movss po_y, [rax + point.y]
+        movss po_z, [rax + point.z]
+
+        movss angle, [ang_arg]
+
+        sub rsp, 8
+        movss [rsp], angle
+        fld dword [rsp]
+        fsin
+        fstp dword [rsp]
+        movss sine, [rsp]
+
+        movss [rsp], angle
+        fld dword [rsp]
+        fcos
+        fstp dword [rsp]
+        movss cosine, [rsp]
+        add rsp, 8
+
+        subss p_x, po_x
+        subss p_y, po_y
+        subss p_z, po_z
+
+        movss temp, cosine
+        movss temp3, p_x
+        mulss temp, temp3
+
+        movss temp2, sine
+        movss temp3, p_z
+        mulss temp2, temp3
+
+        movss resx, temp
+        addss resx, temp2
+
+        movss temp, sine
+        movss temp3, p_x
+        mulss temp, temp3
+        mulss temp, [float_minus_one]
+
+        movss temp2, cosine
+        movss temp3, p_z
+        mulss temp2, temp3
+
+        movss resz, temp
+        addss resz, temp2
+        
+        movss resy, p_y
+
+        addss resy, po_y
+        addss resx, po_x
+        addss resz, po_z
+
+        mov rax, [_p]
+        movss [rax + point.x], resx
+        movss [rax + point.y], resy
+        movss [rax + point.z], resz
+
+        pop rbp
+        ret
+%undef ang_arg
+%undef _po
+%undef _p
+
+%undef resx
+%undef resy
+%undef resz
+
+%undef p_x
+%undef p_y
+%undef p_z
+
+%undef po_x
+%undef po_y
+%undef po_z
+
+%undef temp
+%undef temp2
+%undef temp3
+%undef sine
+%undef cosine
+%undef angle
+
+
 %define box_addr rbp + 24
 %define po rbp + 16
 rotate_box:
         push rbp
         mov rbp, rsp
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p1]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p2]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p3]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p4]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p1]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p2]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p3]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p4]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point_z
+        add rsp, 24
+
+
+
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p1]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p2]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p3]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl1 + plane.p4]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p1]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p2]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p3]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        mov rdi, [box_addr]
+        lea rax, [rdi + box.pl2 + plane.p4]
+        push rax
+        push [po]
+        sub rsp, 8
+        mov [rsp], 0
+        movss xmm0, [rotate_step]
+        movss dword [rsp], xmm0
+        call rotate_point
+        add rsp, 24
+
+        pop rbp
+        ret
+%undef box_addr
+%undef po
+
+%define box_addr rbp + 24
+%define po rbp + 16
+rotate_box_xy:
+        push rbp
+        mov rbp, rsp
+
+
 
         mov rdi, [box_addr]
         lea rax, [rdi + box.pl1 + plane.p1]
