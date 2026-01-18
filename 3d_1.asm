@@ -456,6 +456,20 @@ cube23:
         ; ---- ---- ASCII <
         pointchar db 0x30
 
+        art:    db " _____     _     _ ", 0xA
+                db "|___ /  __| |   / |", 0xA
+                db "  |_ \ / _` |   | |", 0xA
+                db " ___) | (_| |   | |", 0xA
+                db "|____/ \__,_|___|_|", 0xA
+                db "           |_____| ", 0xA,
+                TIMES HEIGHT-8 db 0xA
+                db `\033[2m`
+                db "(3d text from https://www.asciiart.eu/text-to-ascii-art)"
+                db `\033[0m`
+                db 0
+
+        art_len EQU $-art
+
         row TIMES WIDTH db 0x20
         row_len EQU $-row
         ; ---- <
@@ -697,12 +711,23 @@ _start:
                 jmp .fine
 
                 .over:
-                        
+                        call go_home
+                        call print_art
+
+                        mov rax, 0
+                        push rax
+                        mov rax, HEIGHT-2
+                        push rax
+                        call move_cursor
+                        add rsp, 16
                         MACRO_EXIT
                 .fine:
 
                 call go_home
                 call fill_background
+                ; call go_home
+                ; call print_art
+                ; call go_home
 
                 
 
@@ -848,6 +873,14 @@ make_default_color:
         mov rdi, STDOUT
         mov rsi, default_color
         mov rdx, default_color_len
+        syscall
+        ret
+
+print_art:
+        mov rax, SYS_WRITE
+        mov rdi, STDOUT
+        mov rsi, art
+        mov rdx, art_len
         syscall
         ret
 
